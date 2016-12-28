@@ -1,6 +1,6 @@
 # ali_log 
 
-阿里云日志服务log service GO语言封装
+- [aliyun log document](https://help.aliyun.com/document_detail/29007.html?spm=5176.doc29054.3.2.omWG6K)
 
 - support PostLogStoreLogs（写入日志）
 
