@@ -51,12 +51,11 @@ func main() {
 	for i := 0; i<100; i++ {
 		conf.AliLogMapChan <- map[string]string{
 			"IP":             "192.168.1.70",
-			"OccurTimeStamp": "19191991",
+			"OccurTimeStamp": fmt.Sprintf("%v", time.Now().Unix()),
 			"AppName":        "logs",
 			"OptName":        "test",
 			"InputParams":    "InputParams-test",
 			"Err":            "success",
-			"CreateTime":     fmt.Sprintf("%v", time.Now().Unix()),
 		}
 	}
 }
