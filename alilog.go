@@ -10,8 +10,8 @@ func AliLogRecordGoroutine(topic string, logStore AliLogstore, respChan chan map
 	go func(topic string, logStore AliLogstore, respChan chan map[string]string) {
 
 		//ali_log 官方文档:日志数据时间戳在服务端当前处理时间前后[-7x24小时, +15分钟]小时范围内的日志,不在该时间范围内，则整个请求失败，且无任何日志数据成功写入。
-		//ticker := time.NewTicker(6 * 24 * 60 * 60 * time.Second)
-		ticker := time.NewTicker(1 * 24 * 60 * 60 * time.Second) //每小时触发一次 ali_log 写入请求
+		ticker := time.NewTicker(time.Duration(6*24*60*60) * time.Second)
+		//ticker := time.NewTicker(1 * 24 * 60 * 60 * time.Second) //每小时触发一次 ali_log 写入请求
 		defer ticker.Stop()
 
 		aliLogGroup := &pb.LogGroup{
@@ -43,15 +43,15 @@ func putLogs(aliLogGroup *pb.LogGroup, logStore AliLogstore, logMsg map[string]s
 		}
 		newLog.Contents = append(newLog.Contents, content)
 	}
-	aliLogGroup.Logs = append(aliLogGroup.Logs, newLog)
 
 	aliLogBytes, _ := proto.Marshal(aliLogGroup)
+	newLogBytes, _ := proto.Marshal(newLog)
 
 	//ali_log 官方文档: 日志一次写入条数超过4096条 或大小超过3M, 超过则写入失败
-	//if len(aliLogGroup.Logs) > 1000 || len(aliLogBytes) > 2.5*1024*1024 {
-	if len(aliLogGroup.Logs) > 5 || len(aliLogBytes) > 2.5*1024*1024 {
+	if len(aliLogGroup.Logs)+1 >= 3000 || len(aliLogBytes)+len(newLogBytes) > 2.5*1024*1024 {
 		writeAliLog(logStore, aliLogBytes, aliLogGroup)
 	}
+	aliLogGroup.Logs = append(aliLogGroup.Logs, newLog)
 }
 
 func writeAliLog(logStore AliLogstore, aliLogBytes []byte, aliLogGroup *pb.LogGroup) {
