@@ -111,12 +111,10 @@ func (a *aliLogClient) Send(method string, headers map[string]string, logdata in
 	headers[CONTENT_TYPE] = "application/x-protobuf"
 	headers[CONTENT_MD5] = strMd5
 	headers[LOG_SIGNATUREMETHOD] = signaturemethod
-	//	headers[CONTENT_LENTH] = strconv.Itoa(len(logContent))
+	headers[CONTENT_LENTH] = fmt.Sprintf("%v", len(logContent))
 	headers[LOG_BODYRAWSIZE] = "0"
 	headers[HOST] = a.url
-	if strings.HasPrefix(a.url, "http://") {
-		headers[HOST] = strings.TrimPrefix(a.url, "http://")
-	}
+
 	headers[DATE] = time.Now().UTC().Format(http.TimeFormat)
 
 	if authHeader, e := a.authorization(method, headers, fmt.Sprintf("/%s", resource)); e != nil {
@@ -127,7 +125,7 @@ func (a *aliLogClient) Send(method string, headers map[string]string, logdata in
 	}
 
 	url := a.url + "/" + resource
-	if !strings.HasPrefix(a.url, "http://") {
+	if !strings.HasPrefix(a.url, "http://") || strings.HasPrefix(a.url, "https://") {
 		url = "http://" + a.url + "/" + resource
 	}
 	postBodyReader := bytes.NewBuffer(logContent)
